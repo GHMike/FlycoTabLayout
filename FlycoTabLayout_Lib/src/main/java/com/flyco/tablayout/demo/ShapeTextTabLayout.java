@@ -1,0 +1,337 @@
+package com.flyco.tablayout.demo;
+
+import android.animation.ValueAnimator;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.view.animation.OvershootInterpolator;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.flyco.tablayout.IndicatorPoint;
+import com.flyco.tablayout.PointEvaluator;
+import com.flyco.tablayout.R;
+import com.flyco.tablayout.listener.CustomTabEntity;
+import com.flyco.tablayout.listener.OnTabSelectListener;
+import com.flyco.tablayout.utils.ViewUtils;
+
+import java.util.ArrayList;
+
+/**
+ * 包含中间背景
+ */
+public class ShapeTextTabLayout extends FrameLayout implements ValueAnimator.AnimatorUpdateListener {
+
+    private Context mContext;
+
+    /**
+     * 数据
+     */
+    private ArrayList<CustomTabEntity> mTabEntitys = new ArrayList<>();
+
+    /**
+     * Tab父控件
+     */
+    private LinearLayout mTabsContainer;
+
+    /**
+     * 当前 Tab 位置，默认0，第一个
+     */
+    private int mCurrentTab;
+
+    /**
+     * 最后一次 Tab 位置
+     */
+    private int mLastTab;
+
+    /**
+     * Tab Item 个数
+     */
+    private int mTabCount;
+
+    /**
+     * 记录当前Item位置 left right
+     */
+    private Rect mIndicatorCurrentRect = new Rect();
+
+    private GradientDrawable mIndicatorDrawable = new GradientDrawable();
+
+    /**
+     * 指示器
+     */
+    private float mIndicatorHeight = 5;
+
+    /**
+     * 动画相关定义
+     */
+    private boolean mIndicatorAnimEnable = true;//是否支持指示条动画
+    private boolean mIndicatorBounceEnable = true;//是否支持反弹
+
+
+    /**
+     * 文字选中颜色
+     */
+    private int mTextSelectColor = Color.parseColor("#ffffff");
+
+    /**
+     * 文字未选中颜色
+     */
+    private int mTextUnselectColor = Color.parseColor("#AAffffff");
+
+    /**
+     * 动画
+     */
+    private ValueAnimator mValueAnimator;
+
+    /**
+     * 反弹动画
+     */
+    private OvershootInterpolator mOvershootInterpolator = new OvershootInterpolator(1.5f);
+
+    /**
+     * 当前指示器定义
+     */
+    private IndicatorPoint mCurrentPoint = new IndicatorPoint();
+
+    /**
+     * 上一个指示器定义
+     */
+    private IndicatorPoint mLastPoint = new IndicatorPoint();
+
+    /**
+     * 监听Tab切换
+     */
+    private OnTabSelectListener mOnTabSelectListener;
+
+    public ShapeTextTabLayout(Context context) {
+        this(context, null, 0);
+    }
+
+    public ShapeTextTabLayout(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public ShapeTextTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        setWillNotDraw(false);//重写onDraw方法,需要调用这个方法来清除flag
+        setClipChildren(false);
+        setClipToPadding(false);
+
+        this.mContext = context;
+        mTabsContainer = new LinearLayout(context);
+        addView(mTabsContainer);
+        mValueAnimator = ValueAnimator.ofObject(new PointEvaluator(), mLastPoint, mCurrentPoint);
+        mValueAnimator.addUpdateListener(this);
+    }
+
+    public void setOnTabSelectListener(OnTabSelectListener listener) {
+        this.mOnTabSelectListener = listener;
+    }
+
+    /**
+     * 设置 Tab 数据
+     *
+     * @param tabEntitys
+     */
+    public void setTabData(ArrayList<CustomTabEntity> tabEntitys) {
+        if (tabEntitys == null || tabEntitys.size() == 0) {
+            throw new IllegalStateException("TabEntitys can not be NULL or EMPTY !");
+        }
+
+        this.mTabEntitys.clear();
+        this.mTabEntitys.addAll(tabEntitys);
+
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 刷新数据
+     */
+    public void notifyDataSetChanged() {
+        mTabsContainer.removeAllViews();//清空父控件view
+        this.mTabCount = mTabEntitys.size();
+        View tabView;
+        for (int i = 0; i < mTabCount; i++) {
+            tabView = View.inflate(mContext, R.layout.layout_text_tab, null);
+            tabView.setTag(i);
+            addTab(i, tabView);
+        }
+    }
+
+    /**
+     * 创建并向父控件 mTabsContainer 添加tab
+     */
+    private void addTab(final int position, View tabView) {
+        TextView tv_tab_title = (TextView) tabView.findViewById(R.id.tv_tab_title);
+        tv_tab_title.setText(mTabEntitys.get(position).getTabTitle());
+        tabView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = (Integer) v.getTag();
+                if (mCurrentTab != position) {
+                    setCurrentTab(position);
+                    if (mOnTabSelectListener != null) {
+                        mOnTabSelectListener.onTabSelect(position);
+                    }
+                } else {
+                    if (mOnTabSelectListener != null) {
+                        mOnTabSelectListener.onTabReselect(position);
+                    }
+                }
+            }
+        });
+        LinearLayout.LayoutParams lp_tab = new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1.0f);
+        mTabsContainer.addView(tabView, position, lp_tab);
+    }
+
+    /**
+     * 循环遍历所有Tab位置，设置状态，可以恢复选择某个Item态
+     *
+     * @param position
+     */
+    private void updateTabSelection(int position) {
+        for (int i = 0; i < mTabCount; ++i) {
+            View tabView = mTabsContainer.getChildAt(i);
+            final boolean isSelect = i == position;
+            TextView tab_title = (TextView) tabView.findViewById(R.id.tv_tab_title);
+            tab_title.setTextColor(isSelect ? mTextSelectColor : mTextUnselectColor);
+        }
+    }
+
+    /**
+     * 计算两个view之差，之后计算使用
+     */
+    private void calcOffset() {
+        final View currentTabView = mTabsContainer.getChildAt(this.mCurrentTab);
+        mCurrentPoint.left = currentTabView.getLeft();
+        mCurrentPoint.right = currentTabView.getRight();
+
+        final View lastTabView = mTabsContainer.getChildAt(this.mLastTab);
+        mLastPoint.left = lastTabView.getLeft();
+        mLastPoint.right = lastTabView.getRight();
+
+        Log.d("cpf", "mLastPoint left--->" + mLastPoint.left + "& right:" + mLastPoint.right);
+        Log.d("cpf", "mCurrentPoint left--->" + mCurrentPoint.left + "& right:" + mCurrentPoint.right);
+        if (mLastPoint.left == mCurrentPoint.left && mLastPoint.right == mCurrentPoint.right) {
+            invalidate();
+        } else {
+            mValueAnimator.setObjectValues(mLastPoint, mCurrentPoint);
+            //TODO 设置反弹动画
+            if (mIndicatorBounceEnable) {
+                mValueAnimator.setInterpolator(mOvershootInterpolator);
+            }
+            mValueAnimator.setDuration(500);
+            mValueAnimator.start();
+        }
+    }
+
+    /**
+     * 计算当前view位置，浮层
+     */
+    private void calcIndicatorRect() {
+        View currentTabView = mTabsContainer.getChildAt(this.mCurrentTab);
+        float left = currentTabView.getLeft();
+        float right = currentTabView.getRight();
+
+        mIndicatorCurrentRect.left = (int) left;
+        mIndicatorCurrentRect.right = (int) right;
+    }
+
+    @Override
+    public void onAnimationUpdate(ValueAnimator animation) {
+        IndicatorPoint indicatorPoint = (IndicatorPoint) animation.getAnimatedValue();
+        mIndicatorCurrentRect.left = (int) indicatorPoint.left;
+        mIndicatorCurrentRect.right = (int) indicatorPoint.right;
+        invalidate();
+    }
+
+    private boolean mIsFirstDraw = true;
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        if (isInEditMode() || mTabCount <= 0) {
+            return;
+        }
+
+        final int height = getHeight();//获取父控件高度
+        final int paddingLeft = getPaddingLeft();//获取父控件left padding
+
+        //TODO 绘制指示线
+        if (mIndicatorAnimEnable) {
+            if (mIsFirstDraw) {
+                mIsFirstDraw = false;
+                calcIndicatorRect();
+            }
+        } else {
+            calcIndicatorRect();
+        }
+        drawshapeBg(canvas, height, paddingLeft);
+    }
+
+    /**
+     * 指示器
+     */
+    private int mIndicatorColor = Color.parseColor("#4B6A87");
+    //    private float mIndicatorWidth;
+    private float mIndicatorCornerRadius;
+    private float mIndicatorMarginLeft = 10;
+    private float mIndicatorMarginTop = 5;
+    private float mIndicatorMarginRight = 10;
+    private float mIndicatorMarginBottom;
+
+    private void drawshapeBg(Canvas canvas, int height, int paddingLeft) {
+        mIndicatorHeight = height - 5 - 5;
+
+        if (mIndicatorHeight > 0) {
+//            if (mIndicatorCornerRadius < 0 || mIndicatorCornerRadius > mIndicatorHeight / 2) {
+            mIndicatorCornerRadius = mIndicatorHeight / 2;
+//            }
+
+            mIndicatorDrawable.setColor(mIndicatorColor);
+            int left = paddingLeft + (int) mIndicatorMarginLeft + mIndicatorCurrentRect.left;
+            int top = (int) mIndicatorMarginTop;
+            int right = (int) (paddingLeft + mIndicatorCurrentRect.right - mIndicatorMarginRight);
+            int bottom = (int) (mIndicatorMarginTop + mIndicatorHeight);
+            mIndicatorDrawable.setBounds(left, top, right, bottom);
+
+//                mIndicatorDrawable.setBounds(paddingLeft + (int) mIndicatorMarginLeft + mIndicatorCurrentRect.left,
+//                        (int) mIndicatorMarginTop, (int) (paddingLeft + mIndicatorCurrentRect.right - mIndicatorMarginRight),
+//                        (int) (mIndicatorMarginTop + mIndicatorHeight));
+            mIndicatorDrawable.setCornerRadius(mIndicatorCornerRadius);
+            mIndicatorDrawable.draw(canvas);
+        }
+    }
+
+    /**
+     * 设置当前Tab
+     *
+     * @param currentTab position
+     */
+    public void setCurrentTab(int currentTab) {
+        mLastTab = this.mCurrentTab;
+        this.mCurrentTab = currentTab;
+        updateTabSelection(currentTab);
+        if (mIndicatorAnimEnable) {
+            calcOffset();
+        } else {
+            invalidate();
+        }
+    }
+
+    protected int dp2px(float dp) {
+        return ViewUtils.dp2px(mContext, dp);
+    }
+
+    protected int sp2px(float sp) {
+        return ViewUtils.sp2px(mContext, sp);
+    }
+
+}

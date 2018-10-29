@@ -11,6 +11,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.flyco.tablayout.CommonTabLayout;
+import com.flyco.tablayout.demo.ShapeTextTabLayout;
+import com.flyco.tablayout.demo.SingleIconTabLayout;
+import com.flyco.tablayout.demo.SingleIconTextTabLayout;
+import com.flyco.tablayout.demo.SinglePointTabLayout;
+import com.flyco.tablayout.demo.SingleRectTabLayout;
+import com.flyco.tablayout.demo.SingleTextNewTabLayout;
+import com.flyco.tablayout.demo.SingleTextTabLayout;
+import com.flyco.tablayout.demo.SingleUnderLineTabLayout;
+import com.flyco.tablayout.demo.adapter.TabAdapter;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 import com.flyco.tablayout.utils.UnreadMsgUtils;
@@ -46,6 +55,20 @@ public class CommonTabActivity extends AppCompatActivity {
     private CommonTabLayout mTabLayout_7;
     private CommonTabLayout mTabLayout_8;
 
+    /**
+     * 文字切换 无任何效果
+     */
+    private SingleTextTabLayout mTextTabLayout;
+    private ShapeTextTabLayout mTextTabLayout3;
+
+    private SingleUnderLineTabLayout mTextTabLayout2;
+    private SingleIconTabLayout mIconTabLayout;
+    private SingleTextNewTabLayout mTextNewTabLayout;
+    private SingleIconTextTabLayout mSingleIconTextTabLayout;
+
+    private SinglePointTabLayout mSinglePointTabLayout;
+    private SingleRectTabLayout mSingleRectTabLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +103,20 @@ public class CommonTabActivity extends AppCompatActivity {
         mTabLayout_7 = ViewFindUtils.find(mDecorView, R.id.tl_7);
         /** indicator圆角色块 */
         mTabLayout_8 = ViewFindUtils.find(mDecorView, R.id.tl_8);
+        mTextTabLayout = ViewFindUtils.find(mDecorView, R.id.text_tab_layout);
+        mTextTabLayout2 = ViewFindUtils.find(mDecorView, R.id.text_tab_layout2);
+        mIconTabLayout = ViewFindUtils.find(mDecorView, R.id.icon_tab_layout);
+        mTextNewTabLayout = ViewFindUtils.find(mDecorView, R.id.new_tab_layout);
+        mTextTabLayout3 = ViewFindUtils.find(mDecorView, R.id.text_tab_layout3);
+        mSinglePointTabLayout = ViewFindUtils.find(mDecorView, R.id.point_tab_layout);
+        mSingleRectTabLayout = ViewFindUtils.find(mDecorView, R.id.rect_tab_layout);
+        mSingleIconTextTabLayout = ViewFindUtils.find(mDecorView, R.id.text_icon_tab_layout);
+
+        // TODO adapter 方式
+        TabAdapter adapter = new TabAdapter(getApplicationContext(),mTextNewTabLayout);
+        adapter.setData(mTabEntities);
+        mTextNewTabLayout.setAdapter(adapter);
+        adapter.setCurrentTab(1);
 
         mTabLayout_1.setTabData(mTabEntities);
         tl_2();
@@ -89,6 +126,31 @@ public class CommonTabActivity extends AppCompatActivity {
         mTabLayout_6.setTabData(mTabEntities);
         mTabLayout_7.setTabData(mTabEntities);
         mTabLayout_8.setTabData(mTabEntities);
+
+        mTextTabLayout.setTabData(mTabEntities);
+        mTextTabLayout.setCurrentTab(0);
+
+        mTextTabLayout2.setTabData(mTabEntities);
+        mTextTabLayout2.setCurrentTab(2);
+
+        mTextTabLayout3.setTabData(mTabEntities);
+        mTextTabLayout3.setCurrentTab(2);
+
+        mSinglePointTabLayout.setTabData(mTabEntities);
+        mSinglePointTabLayout.setCurrentTab(2);
+
+        mSingleRectTabLayout.setTabData(mTabEntities);
+        mSingleRectTabLayout.setCurrentTab(2);
+
+        mSingleIconTextTabLayout.setTabData(mTabEntities);
+        mSingleIconTextTabLayout.setCurrentTab(2);
+
+        mIconTabLayout.setTabData(mTabEntities);
+        mIconTabLayout.setCurrentTab(2);
+        mIconTabLayout.showDot(2);
+        mIconTabLayout.showMsg(0, 5);
+        mIconTabLayout.showMsg(1, 55);
+        mIconTabLayout.showMsg(3, 555);
 
         mTabLayout_3.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -153,7 +215,7 @@ public class CommonTabActivity extends AppCompatActivity {
             public void onTabReselect(int position) {
                 if (position == 0) {
                     mTabLayout_2.showMsg(0, mRandom.nextInt(100) + 1);
-//                    UnreadMsgUtils.show(mTabLayout_2.getMsgView(0), mRandom.nextInt(100) + 1);
+                    UnreadMsgUtils.show(mTabLayout_2.getMsgView(0), mRandom.nextInt(100) + 1);
                 }
             }
         });

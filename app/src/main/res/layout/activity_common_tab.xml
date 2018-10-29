@@ -11,6 +11,136 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!--三种状态切换-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="StateListDrawable 实现三种状态切换(点我)"/>
+
+        <com.flyco.tablayout.demo.HintImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:clickable="true"
+            android:src="@mipmap/tab_home_select"/>
+
+        <!--Rect 切换-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="1、文字+矩形块切换"/>
+
+        <com.flyco.tablayout.demo.SingleRectTabLayout
+            android:id="@+id/rect_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#E45171"/>
+
+        <!--point tab切换-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="2、文字+圆点切换"/>
+
+        <com.flyco.tablayout.demo.SinglePointTabLayout
+            android:id="@+id/point_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#6D8FB0"/>
+
+        <!--浮层 tab切换-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="3、文字+shape浮层切换"/>
+
+        <com.flyco.tablayout.demo.ShapeTextTabLayout
+            android:id="@+id/text_tab_layout3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#6D8FB0"/>
+
+        <!--文字tab切换-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="4、文字切换(Adapter思路实现)"/>
+
+        <com.flyco.tablayout.demo.SingleTextNewTabLayout
+            android:id="@+id/new_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#E45171"/>
+
+        <!--icon tab切换-->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="5、icon 切换(包含消息)"/>
+
+        <com.flyco.tablayout.demo.SingleIconTabLayout
+            android:id="@+id/icon_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#ffffff"/>
+
+        <!--文字tab切换-->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="6、文字切换"/>
+
+        <com.flyco.tablayout.demo.SingleTextTabLayout
+            android:id="@+id/text_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#E45171"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"/>
+
+        <!--文字+下划线tab切换-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="7、文字+下划线切换"/>
+
+        <com.flyco.tablayout.demo.SingleUnderLineTabLayout
+            android:id="@+id/text_tab_layout2"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#6D8FB0"/>
+
+        <!--文字+icontab切换(无动画)-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="8、文字+icon切换"/>
+
+        <com.flyco.tablayout.demo.SingleIconTextTabLayout
+            android:id="@+id/text_icon_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="以下原来库控件"/>
+
         <com.flyco.tablayout.CommonTabLayout
             android:id="@+id/tl_1"
             android:layout_width="match_parent"
@@ -75,12 +205,11 @@
             android:layout_height="48dp"
             android:background="#F6CE59"
             tl:tl_iconVisible="false"
-            tl:tl_textBold="SELECT"
             tl:tl_indicator_width="10dp"
+            tl:tl_textBold="SELECT"
             tl:tl_textsize="14sp"/>
 
         <com.flyco.tablayout.CommonTabLayout
-            tl:tl_textBold="BOTH"
             android:id="@+id/tl_5"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -89,6 +218,7 @@
             tl:tl_indicator_corner_radius="2dp"
             tl:tl_indicator_height="4dp"
             tl:tl_indicator_width="4dp"
+            tl:tl_textBold="BOTH"
             tl:tl_textsize="14sp"/>
 
         <com.flyco.tablayout.CommonTabLayout
@@ -127,5 +257,6 @@
             tl:tl_indicator_margin_right="5dp"
             tl:tl_indicator_style="BLOCK"
             tl:tl_textsize="14sp"/>
+
     </LinearLayout>
 </ScrollView>

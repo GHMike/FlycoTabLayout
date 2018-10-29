@@ -31,12 +31,14 @@ import com.flyco.tablayout.widget.MsgView;
 import java.util.ArrayList;
 
 public class SegmentTabLayout extends FrameLayout implements ValueAnimator.AnimatorUpdateListener {
+
     private Context mContext;
     private String[] mTitles;
     private LinearLayout mTabsContainer;
     private int mCurrentTab;
     private int mLastTab;
     private int mTabCount;
+
     /** 用于绘制显示器 */
     private Rect mIndicatorRect = new Rect();
     private GradientDrawable mIndicatorDrawable = new GradientDrawable();
@@ -86,6 +88,10 @@ public class SegmentTabLayout extends FrameLayout implements ValueAnimator.Anima
     private OvershootInterpolator mInterpolator = new OvershootInterpolator(0.8f);
 
     private FragmentChangeManager mFragmentChangeManager;
+
+    /**
+     * 定义角度 8个方向
+     */
     private float[] mRadiusArr = new float[8];
 
     public SegmentTabLayout(Context context) {
